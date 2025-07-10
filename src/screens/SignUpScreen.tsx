@@ -1,27 +1,30 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { useAuth } from '../context/AuthContext';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from '../store/store';
+import { signup } from '../store/authSlice';
 import { colors } from '../theme';
 
 const SignUpScreen = () => {
   const navigation = useNavigation();
-  const { signup, loading } = useAuth();
+  const dispatch = useDispatch<AppDispatch>();
+  const { loading, error } = useSelector((state: RootState) => state.auth);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [localError, setLocalError] = useState('');
 
   const handleSignUp = async () => {
-    setError('');
+    setLocalError('');
     if (!name || !email || !password) {
-      setError('All fields are required');
+      setLocalError('All fields are required');
       return;
     }
     try {
-      await signup(name, email, password);
-    } catch (e) {
-      setError('Sign up failed');
+      await dispatch(signup({ name, email, password })).unwrap();
+    } catch (e: any) {
+      setLocalError(e.message || 'Sign up failed');
     }
   };
 
@@ -50,7 +53,8 @@ const SignUpScreen = () => {
         onChangeText={setPassword}
         secureTextEntry
       />
-      {error ? <Text style={styles.error}>{error}</Text> : null}
+      {localError ? <Text style={styles.error}>{localError}</Text> : null}
+      {error && !localError ? <Text style={styles.error}>{error}</Text> : null}
       <TouchableOpacity style={styles.button} onPress={handleSignUp} disabled={loading}>
         {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>Sign Up</Text>}
       </TouchableOpacity>

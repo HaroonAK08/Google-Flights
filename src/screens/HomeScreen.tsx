@@ -1,16 +1,24 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { useAuth } from '../context/AuthContext';
+import { useSelector, useDispatch } from 'react-redux';
+import { RootState, AppDispatch } from '../store/store';
+import { logout } from '../store/authSlice';
+import { useNavigation } from '@react-navigation/native';
 import { colors } from '../theme';
 
 const HomeScreen = () => {
-  const { user, logout } = useAuth();
+  const dispatch = useDispatch<AppDispatch>();
+  const navigation = useNavigation();
+  const user = useSelector((state: RootState) => state.auth.user);
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Welcome, {user?.name || 'Traveler'}!</Text>
       <Text style={styles.subtitle}>Ready to search for flights and explore the world?</Text>
-      <TouchableOpacity style={styles.button} onPress={logout}>
+      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Info' as never)}>
+        <Text style={styles.buttonText}>Account Info</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.button} onPress={() => dispatch(logout())}>
         <Text style={styles.buttonText}>Log Out</Text>
       </TouchableOpacity>
     </View>
@@ -49,6 +57,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 2,
+    marginBottom: 12,
   },
   buttonText: {
     color: '#fff',

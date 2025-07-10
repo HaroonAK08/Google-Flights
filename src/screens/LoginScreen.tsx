@@ -1,26 +1,29 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { useAuth } from '../context/AuthContext';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from '../store/store';
+import { login } from '../store/authSlice';
 import { colors } from '../theme';
 
 const LoginScreen = () => {
   const navigation = useNavigation();
-  const { login, loading } = useAuth();
+  const dispatch = useDispatch<AppDispatch>();
+  const { loading, error } = useSelector((state: RootState) => state.auth);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [localError, setLocalError] = useState('');
 
   const handleLogin = async () => {
-    setError('');
+    setLocalError('');
     if (!email || !password) {
-      setError('Email and password are required');
+      setLocalError('Email and password are required');
       return;
     }
     try {
-      await login(email, password);
-    } catch (e) {
-      setError('Login failed');
+      await dispatch(login({ email, password })).unwrap();
+    } catch (e: any) {
+      setLocalError(e.message || 'Login failed');
     }
   };
 
@@ -42,7 +45,8 @@ const LoginScreen = () => {
         onChangeText={setPassword}
         secureTextEntry
       />
-      {error ? <Text style={styles.error}>{error}</Text> : null}
+      {localError ? <Text style={styles.error}>{localError}</Text> : null}
+      {error && !localError ? <Text style={styles.error}>{error}</Text> : null}
       <TouchableOpacity style={styles.button} onPress={handleLogin} disabled={loading}>
         {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>Log In</Text>}
       </TouchableOpacity>
