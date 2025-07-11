@@ -22,7 +22,13 @@ const Tab = createBottomTabNavigator<RootTabParamList>();
 const AuthStack = createBottomTabNavigator();
 
 const AuthNavigator = () => (
-  <AuthStack.Navigator screenOptions={{ headerShown: false }}>
+  <AuthStack.Navigator
+    screenOptions={{
+      headerShown: false,
+      tabBarButton: () => null,
+      tabBarStyle: { display: 'none' }
+    }}
+  >
     <AuthStack.Screen name="SignUp" component={SignUpScreen} />
     <AuthStack.Screen name="Login" component={LoginScreen} />
   </AuthStack.Navigator>
