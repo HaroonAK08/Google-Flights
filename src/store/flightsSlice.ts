@@ -11,6 +11,9 @@ export const PLACES: PlaceOption[] = [
   { label: 'Mumbai (BOM)', skyId: 'BOM', entityId: '95673320' },
   { label: 'London (LOND)', skyId: 'LOND', entityId: '27544008' },
   { label: 'New York (NYCA)', skyId: 'NYCA', entityId: '27537542' },
+  { label: "CapeTown", skyId: "CPT", entityId: "27539908" },
+  { label: "New Zealand", skyId: "NZ", entityId: "29475342" },
+  { label: "Tokyo", skyId: "TYOA", entityId: "27542089" }
 ];
 
 export type FlightsSearchParams = {

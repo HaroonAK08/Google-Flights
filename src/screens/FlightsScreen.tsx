@@ -355,19 +355,21 @@ const FlightsScreen = () => {
         </TouchableOpacity>
       </View>
       {renderAdvancedModal()}
+      {/* Show a friendly prompt when no search has been made yet */}
+      {!showResults && (
+        <View style={styles.initialPromptContainer}>
+          <Image
+            source={{ uri: 'https://cdn.dribbble.com/users/2046015/screenshots/6015405/no_results_found.png' }}
+            style={styles.initialPromptImg}
+          />
+          <Text style={styles.initialPromptTitle}>Ready to explore?</Text>
+          <Text style={styles.initialPromptText}>
+            Enter your route and dates above to search for the best flights!
+          </Text>
+        </View>
+      )}
       {showResults && (
         <View style={styles.results}>
-          {/* Destination Banner */}
-          {/* {data?.data?.destinationImageUrl && (
-            <View style={styles.bannerContainer}>
-              <Image source={{ uri: data.data.destinationImageUrl }} style={styles.bannerImg} />
-              <LinearGradient
-                colors={['rgba(0,0,0,0.5)', 'rgba(0,0,0,0.0)']}
-                style={styles.bannerOverlay}
-              />
-              <Text style={styles.bannerText}>Flights to {toOptions.find(p => p.skyId === params.destinationSkyId)?.label?.split('(')[0]?.trim() || 'Destination'}</Text>
-            </View>
-          )} */}
           {isLoading && (
             <ActivityIndicator
               size="large"
@@ -407,8 +409,8 @@ const FlightsScreen = () => {
 
 const FlightCard: React.FC<{ itinerary: any; from: string; to: string }> = ({
   itinerary,
-  from,
-  to,
+  from: _from,
+  to: _to,
 }) => {
   const firstLeg = itinerary.legs[0];
   const mainCarrier = firstLeg?.carriers?.marketing?.[0];
@@ -700,6 +702,33 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   carrierName: { color: colors.text, fontSize: 13, fontWeight: 'bold' },
+  initialPromptContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 32,
+    paddingHorizontal: 16,
+  },
+  initialPromptImg: {
+    width: 180,
+    height: 120,
+    resizeMode: 'contain',
+    marginBottom: 12,
+    opacity: 0.7,
+  },
+  initialPromptTitle: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: colors.primary,
+    marginBottom: 6,
+    textAlign: 'center',
+  },
+  initialPromptText: {
+    fontSize: 16,
+    color: colors.textSecondary,
+    textAlign: 'center',
+    marginBottom: 8,
+  },
 });
 
 export default FlightsScreen;
