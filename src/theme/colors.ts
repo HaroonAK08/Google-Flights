@@ -1,8 +1,7 @@
-// Google Flights inspired color palette
 export const colors = {
-  primary: '#1967D2', // Google blue
+  primary: '#1967D2',
   primaryDark: '#174EA6',
-  accent: '#FFB300', // Google yellow
+  accent: '#FFB300',
   background: '#F5F7FA',
   surface: '#FFFFFF',
   text: '#202124',

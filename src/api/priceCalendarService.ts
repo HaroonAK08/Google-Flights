@@ -1,12 +1,12 @@
 export interface PriceCalendarDay {
-  day: string; // YYYY-MM-DD
-  group: string; // 'low' | 'medium' | 'high'
+  day: string;
+  group: string;
   price: number;
 }
 
 export interface PriceCalendarGroup {
-  id: string; // 'low' | 'medium' | 'high'
-  label: string; // e.g. '$', '$$', '$$$'
+  id: string;
+  label: string;
 }
 
 export interface PriceCalendarFlights {

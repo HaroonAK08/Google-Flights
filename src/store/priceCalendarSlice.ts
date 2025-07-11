@@ -1,7 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { format } from 'date-fns';
 
-// Types from user schema
 export interface PriceCalendarParams {
   originSkyId: string;
   destinationSkyId: string;

@@ -8,8 +8,8 @@ export interface FlightSearchParams {
   destinationSkyId: string;
   originEntityId: string;
   destinationEntityId: string;
-  date: string; // YYYY-MM-DD
-  returnDate?: string; // YYYY-MM-DD
+  date: string;
+  returnDate?: string;
   cabinClass?: CabinClass;
   adults?: number;
   childrens?: number;

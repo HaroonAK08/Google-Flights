@@ -186,7 +186,6 @@ const InfoScreen = () => {
           <Text style={styles.logoutText}>Log Out</Text>
         </TouchableOpacity>
       </MotiView>
-      {/* Logout confirmation modal */}
       <Modal
         visible={showLogoutModal}
         transparent

@@ -355,7 +355,6 @@ const FlightsScreen = () => {
         </TouchableOpacity>
       </View>
       {renderAdvancedModal()}
-      {/* Show a friendly prompt when no search has been made yet */}
       {!showResults && (
         <View style={styles.initialPromptContainer}>
           <Image
