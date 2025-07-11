@@ -20,7 +20,7 @@ export async function apiFetch<T>(path: string, params?: Record<string, any>): P
     },
   });
   const data = await res.json()
-  console.log("RESPONSE", path, data);
+  console.log("RESPONSE", url, data);
   if (!res.ok) {
     let message = 'API Error';
     try { message = (await res.json()).message || message; } catch {}

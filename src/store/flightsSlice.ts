@@ -48,7 +48,7 @@ const initialState = {
     childrens: 0,
     infants: 0,
     sortBy: 'best',
-    limit: 0,
+    limit: 10,
     carriersIds: '',
     currency: 'USD',
     market: 'en-US',
