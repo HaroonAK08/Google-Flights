@@ -47,7 +47,7 @@ const MainNavigator = () => (
 const RootNavigator = () => {
   const { user, loading } = useSelector((state: RootState) => state.auth);
   if (loading) return null;
-  return user ? <MainNavigator /> : <AuthNavigator />;
+  return <MainNavigator />
 };
 
 export default RootNavigator; 

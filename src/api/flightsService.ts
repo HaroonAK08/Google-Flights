@@ -60,6 +60,7 @@ export interface FlightSearchResponse {
     itineraries: FlightItinerary[];
     messages: any[];
     filterStats: any;
+    destinationImageUrl?: string;
   };
 }
 
