@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -13,6 +13,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../store/store';
 import { getUserLocation, fetchNearbyAirports } from '../store/airportsSlice';
 import { AirportData } from '../api/airportsService';
+import { searchAirports } from '../api/airportsService';
 import { colors } from '../theme';
 
 const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity);
@@ -49,8 +50,10 @@ const AirportsScreen = () => {
   const { airports, loading, error } = useSelector((state: RootState) => state.airports);
   const [search, setSearch] = React.useState('');
   const [filter, setFilter] = React.useState<'all' | 'airport' | 'city'>('all');
+  const [searchResults, setSearchResults] = React.useState<AirportData[]>([]);
+  const [searching, setSearching] = React.useState(false);
 
-  useEffect(() => {
+  const handleGetLocation = useCallback(() => {
     dispatch(getUserLocation()).then((action: any) => {
       if (getUserLocation.fulfilled.match(action)) {
         dispatch(fetchNearbyAirports(action.payload));
@@ -58,20 +61,76 @@ const AirportsScreen = () => {
     });
   }, [dispatch]);
 
-  const filteredAirports = airports.filter(a => {
+  const handleSearch = useCallback(async (query: string) => {
+    setSearch(query);
+    if (query.length < 2) {
+      setSearchResults([]);
+      return;
+    }
+    
+    setSearching(true);
+    try {
+      const response = await searchAirports(query);
+      setSearchResults(response.data || []);
+    } catch (error) {
+      console.error('Search error:', error);
+      setSearchResults([]);
+    } finally {
+      setSearching(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    handleGetLocation();
+  }, [handleGetLocation]);
+
+  const displayAirports = search.length >= 2 ? searchResults : airports;
+  const isLoading = loading || searching;
+
+  const filteredAirports = displayAirports.filter(a => {
     if (filter === 'all') return true;
     return a.navigation.entityType.toLowerCase() === filter;
   });
 
+  const renderError = () => {
+    if (!error) return null;
+    
+    const isPermissionError = error.includes('permission') || error.includes('denied');
+    const isLocationError = error.includes('location') || error.includes('timeout');
+    
+    return (
+      <View style={styles.errorContainer}>
+        <Text style={styles.error}>
+          {isPermissionError 
+            ? 'Location permission is required to find nearby airports. Please grant location access in your device settings.'
+            : isLocationError
+            ? 'Unable to get your location. Please check your GPS settings and try again.'
+            : error
+          }
+        </Text>
+        <TouchableOpacity style={styles.retryButton} onPress={handleGetLocation}>
+          <Text style={styles.retryButtonText}>
+            {isPermissionError ? 'Grant Permission & Retry' : 'Retry Location'}
+          </Text>
+        </TouchableOpacity>
+        <Text style={styles.errorNote}>
+          You can also search for airports manually using the search bar above.
+        </Text>
+      </View>
+    );
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.topBar}>
-        <Text style={styles.title}>Nearby Airports</Text>
+        <Text style={styles.title}>
+          {search.length >= 2 ? 'Search Results' : 'Nearby Airports'}
+        </Text>
         <TextInput
           style={styles.search}
           placeholder="Search airports or cities..."
           value={search}
-          onChangeText={setSearch}
+          onChangeText={handleSearch}
         />
         <View style={styles.filters}>
           <TouchableOpacity
@@ -90,23 +149,24 @@ const AirportsScreen = () => {
             <Text style={styles.filterText}>Airports</Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={[styles.filterBtn, filter === 'city' && styles.filterActive]}
+            style={[
+              styles.filterBtn,
+              filter === 'city' && styles.filterActive,
+            ]}
             onPress={() => setFilter('city')}
           >
             <Text style={styles.filterText}>Cities</Text>
           </TouchableOpacity>
         </View>
       </View>
-      {loading && (
+      {isLoading && (
         <ActivityIndicator
           size="large"
           color={colors.primary}
           style={{ marginTop: 32 }}
         />
       )}
-      {error && (
-        <Text style={styles.error}>Error: {String(error)}</Text>
-      )}
+      {renderError()}
       <FlatList
         data={filteredAirports}
         keyExtractor={(_, i) => i.toString()}
@@ -115,7 +175,7 @@ const AirportsScreen = () => {
         )}
         contentContainerStyle={{ paddingBottom: 32 }}
         ListEmptyComponent={
-          !loading && !error ? (
+          !isLoading && !error ? (
             <Text style={styles.empty}>No airports found.</Text>
           ) : null
         }
@@ -207,6 +267,32 @@ const styles = StyleSheet.create({
     marginTop: 16,
     textAlign: 'center',
     fontSize: 16,
+  },
+  errorContainer: {
+    marginTop: 16,
+    padding: 16,
+    backgroundColor: colors.surface,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: colors.error,
+  },
+  retryButton: {
+    marginTop: 10,
+    paddingVertical: 8,
+    paddingHorizontal: 15,
+    backgroundColor: colors.primary,
+    borderRadius: 8,
+    alignSelf: 'center',
+  },
+  retryButtonText: {
+    color: colors.surface,
+    fontWeight: 'bold',
+  },
+  errorNote: {
+    marginTop: 10,
+    textAlign: 'center',
+    color: colors.textSecondary,
+    fontSize: 14,
   },
 });
 
