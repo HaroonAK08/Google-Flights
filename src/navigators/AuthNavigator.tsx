@@ -7,12 +7,14 @@ import LoginScreen from '../screens/LoginScreen';
 import InfoScreen from '../screens/InfoScreen';
 import AirportsScreen from '../screens/AirportsScreen';
 import FlightsScreen from '../screens/FlightsScreen';
+import PriceCalendarScreen from '../screens/PriceCalendarScreen';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
 export type RootTabParamList = {
   Airports: undefined;
   Flights: undefined;
   Info: undefined;
+  PriceCalendar: undefined;
 };
 
 const Tab = createBottomTabNavigator<RootTabParamList>();
@@ -34,12 +36,14 @@ const MainNavigator = () => (
         let iconName = 'airplane-outline';
         if (route.name === 'Info') iconName = 'person-circle-outline';
         if (route.name === 'Flights') iconName = 'search-outline';
+        if (route.name === 'PriceCalendar') iconName = 'calendar-outline';
         return <Ionicons name={iconName} size={size} color={color} />;
       },
     })}
   >
-    <Tab.Screen name="Airports" component={AirportsScreen} />
     <Tab.Screen name="Flights" component={FlightsScreen} />
+    <Tab.Screen name="Airports" component={AirportsScreen} />
+    <Tab.Screen name="PriceCalendar" component={PriceCalendarScreen} />
     <Tab.Screen name="Info" component={InfoScreen} />
   </Tab.Navigator>
 );
