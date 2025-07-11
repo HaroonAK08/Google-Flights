@@ -1,6 +1,8 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-import { User as FirebaseUser } from 'firebase/auth';
+import { User as FirebaseUser, signInWithCustomToken } from 'firebase/auth';
 import { loginApi, signupApi, logoutApi, updateNameApi, updatePasswordApi } from '../api/authApi';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { auth } from '../api/firebase';
 
 export interface User {
   id: string;
@@ -29,6 +31,21 @@ const mapFirebaseUser = (firebaseUser: FirebaseUser): User => ({
   email: firebaseUser.email || '',
   name: firebaseUser.displayName || '',
 });
+
+export const checkAuthOnStartup = createAsyncThunk(
+  'auth/checkAuthOnStartup',
+  async (_, { rejectWithValue }) => {
+    try {
+      const token = await AsyncStorage.getItem('authToken');
+      if (!token) return null;
+      const userCredential = await signInWithCustomToken(auth, token);
+      return mapFirebaseUser(userCredential.user);
+    } catch (error: any) {
+      await AsyncStorage.removeItem('authToken');
+      return rejectWithValue('Session expired. Please log in again.');
+    }
+  }
+);
 
 export const login = createAsyncThunk(
   'auth/login',
@@ -101,6 +118,19 @@ const authSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
+      .addCase(checkAuthOnStartup.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(checkAuthOnStartup.fulfilled, (state, action: PayloadAction<User | null>) => {
+        state.loading = false;
+        state.user = action.payload;
+      })
+      .addCase(checkAuthOnStartup.rejected, (state, action) => {
+        state.loading = false;
+        state.user = null;
+        state.error = action.payload as string;
+      })
       .addCase(login.pending, (state) => {
         state.loading = true;
         state.error = null;

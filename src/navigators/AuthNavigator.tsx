@@ -1,39 +1,53 @@
 import React from 'react';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { useSelector } from 'react-redux';
 import { RootState } from '../store/store';
 import SignUpScreen from '../screens/SignUpScreen';
 import LoginScreen from '../screens/LoginScreen';
-import HomeScreen from '../screens/HomeScreen';
 import InfoScreen from '../screens/InfoScreen';
+import AirportsScreen from '../screens/AirportsScreen';
+import FlightsScreen from '../screens/FlightsScreen';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
-export type RootStackParamList = {
-  SignUp: undefined;
-  Login: undefined;
-  Home: undefined;
+export type RootTabParamList = {
+  Airports: undefined;
+  Flights: undefined;
   Info: undefined;
 };
 
-const Stack = createNativeStackNavigator<RootStackParamList>();
+const Tab = createBottomTabNavigator<RootTabParamList>();
+
+const AuthStack = createBottomTabNavigator();
+
+const AuthNavigator = () => (
+  <AuthStack.Navigator screenOptions={{ headerShown: false }}>
+    <AuthStack.Screen name="SignUp" component={SignUpScreen} />
+    <AuthStack.Screen name="Login" component={LoginScreen} />
+  </AuthStack.Navigator>
+);
+
+const MainNavigator = () => (
+  <Tab.Navigator
+    screenOptions={({ route }) => ({
+      headerShown: false,
+      tabBarIcon: ({ color, size }) => {
+        let iconName = 'airplane-outline';
+        if (route.name === 'Info') iconName = 'person-circle-outline';
+        if (route.name === 'Flights') iconName = 'search-outline';
+        return <Ionicons name={iconName} size={size} color={color} />;
+      },
+    })}
+  >
+    <Tab.Screen name="Airports" component={AirportsScreen} />
+    <Tab.Screen name="Flights" component={FlightsScreen} />
+    <Tab.Screen name="Info" component={InfoScreen} />
+  </Tab.Navigator>
+);
 
 const RootNavigator = () => {
   const { user, loading } = useSelector((state: RootState) => state.auth);
   if (loading) return null;
-  return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
-      {user ? (
-        <>
-          <Stack.Screen name="Home" component={HomeScreen} />
-          <Stack.Screen name="Info" component={InfoScreen} />
-        </>
-      ) : (
-        <>
-          <Stack.Screen name="SignUp" component={SignUpScreen} />
-          <Stack.Screen name="Login" component={LoginScreen} />
-        </>
-      )}
-    </Stack.Navigator>
-  );
+  return user ? <MainNavigator /> : <AuthNavigator />;
 };
 
 export default RootNavigator; 

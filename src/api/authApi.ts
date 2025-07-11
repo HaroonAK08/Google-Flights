@@ -1,3 +1,4 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { auth } from './firebase';
 import {
   signInWithEmailAndPassword,
@@ -9,6 +10,8 @@ import {
 
 export const loginApi = async (email: string, password: string) => {
   const userCredential = await signInWithEmailAndPassword(auth, email, password);
+  const token = await userCredential.user.getIdToken();
+  await AsyncStorage.setItem('authToken', token);
   return userCredential.user;
 };
 
@@ -17,11 +20,14 @@ export const signupApi = async (name: string, email: string, password: string) =
   if (auth.currentUser) {
     await updateProfile(auth.currentUser, { displayName: name });
   }
+  const token = await userCredential.user.getIdToken();
+  await AsyncStorage.setItem('authToken', token);
   return userCredential.user;
 };
 
 export const logoutApi = async () => {
   await signOut(auth);
+  await AsyncStorage.removeItem('authToken');
 };
 
 export const updateNameApi = async (name: string) => {
